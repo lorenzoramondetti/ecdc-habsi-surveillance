@@ -1,0 +1,47 @@
+# ===================================================================
+# ECDC HA-BSI Surveillance AI - .gitignore
+# PROTEZIONE DATI SANITARI (GDPR / HIPAA) E PULIZIA AMBIENTE
+# ===================================================================
+
+# 1. Cartelle Cliniche Reali & Dati Sanitari Sensibili (CRITICO)
+Prime cartelle cliniche anonimizzate/
+*cartelle cliniche*
+*.docx
+*.doc
+Etichette cartelle_validazione umana.xlsx
+REPORT_TECNICO*
+# Note: llm-data-extraction v1.3.xlsx e tracciato poiche contiene solo lo schema DB a 199 colonne senza dati pazienti
+
+# 2. Output & Cache di elaborazione locale
+output/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# 3. Cache Ollama / Modelli Locali pesanti
+*.gguf
+*.bin
+*.pt
+
+# 4. Ambienti Virtuali Python
+.venv/
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# 5. File di Configurazione Locale & Variabili d'Ambiente
+.env
+.env.local
+
+# 6. File temporanei di sistema e IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.bak
+*.tmp

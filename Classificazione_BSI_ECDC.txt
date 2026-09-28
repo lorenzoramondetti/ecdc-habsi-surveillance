@@ -1,0 +1,63 @@
+ECDC Case Definitions for BSI, HA-BSI, and Source Attribution.
+CASE DEFINITIONS AND CLASSIFICATION CRITERIA
+This annex will describe the case definitions and criteria that must be used to recognize bloodstream infections (BSI) and define their healthcare association, their source and place of acquisition, based on both clinical presentations and microbiological findings in accordance with the ECDC PPS protocol version 6.17. Each category is defined by an ECDC standard label (in bold).
+BSI Case definition
+The methodology must be able to identify bloodstream infections (BSI) based on three distinct case definitions depending on patient type and pathogen characteristics:
+1. BSI - for adult patients with recognized pathogens or common skin contaminants.
+2. NEO-LCBI – for BSI in neonatal patients (less than 1 month from birth) with positive microbiology (excluding coagulase-negative staphylococci).
+3. NEO-CNSB - for BSI in neonatal patients (less than 1 month from birth) with coagulase-negative staphylococci detection.
+Categorise as adult BSI case any non-neonate patient with:
+- One positive blood culture for a recognised pathogen
+OR
+- patient has at least one of the following signs or symptoms: fever (>38°C), chills, or hypotension AND two positive blood cultures for a common skin contaminant8 (from two separate blood samples, usually within 48 hours).
+Categorise as NEO-LCBI case neonate patient with:
+- At least two of: temperature >38°C or <36.5°C or temperature instability, tachycardia or bradycardia, apnoea, extended capillary refilling time (CRT), metabolic acidosis, hyperglycaemia, other sign of BSI such as apathy;
+AND
+- A recognised pathogen other than coagulase-negative staphylococci (CNS) cultured from blood or cerebrospinal fluid (CSF; this is included because meningitis in this age group is usually haematogenous, so positive CSF can be regarded as evidence of BSI even if blood cultures are negative or were not taken).
+Categorise as NEO-CNSB case neonate patient with:
+- At least two of: temperature > 38°C or < 36.5°C or temperature instability, tachycardia or
+
+7.https://www.ecdc.europa.eu/en/publications-data/point-prevalence-survey-healthcare-associated-infections-and-antimicrobial-use-vs-6-1
+8 Skin contaminants = coagulase-negative staphylococci, Micrococcus sp., Propionibacterium acnes, Bacillus sp., Corynebacterium sp.
+bradycardia, apnoea, extended capillary refilling time, metabolic acidosis, hyperglycaemia, other sign of BSI such as apathy;
+AND
+- CNS is cultured from blood or catheter tip;
+AND
+- Patient has one of: C-reactive protein > 2.0 mg/dL, immature/total neutrophil ratio (I/T ratio) > 0.2, leukocytes < 5/nL, platelets < 100/nL.
+If both the case definitions for NEO-LCBI and NEO-CNSB are matched, report NEO-LCBI.
+Healthcare association
+A BSI case is considered healthcare-associated (HA-BSI) when it meets any of the following criteria:
+- Day 3 onwards (with day of admission being Day 1)
+OR
+- Day 1 or Day 2 AND patient discharged from healthcare facility in preceding 48 hours.
+OR
+- Day 1 or Day 2 AND patient has relevant device inserted on this admission prior to onset.
+OR
+- Day 1 or Day 2 in newborns delivered in hospital.
+BSI source of infection
+The HA-BSIs (both adult and neonatal cases) should be further classified based on the source of infection:
+- CRI3-CVC/CRI3-PVC9: Catheter related with cultural isolation of the same microorganism. More    
+   specifically:
+BSI occurring 48 hours before or after catheter removal AND positive culture with the same microorganism of quantitative CVC/PVC culture ≥ 103 CFU/ml or semi-quantitative CVC/PVC culture > 15 CFU;
+OR
+BSI occurring with or without catheter removal, AND:
+CVC-related if at least one of:
+quantitative blood culture ratio of CVC blood sample/peripheral blood sample > 5;
+differential delay of positivity of blood cultures: CVC blood sample culture positive two hours or more before peripheral blood culture (blood samples drawn at the same time);
+positive culture with the same microorganism from pus from CVC insertion site.
+
+9 CVC: central venous catheter; PVC: periferal venous catheter.
+
+
+PVC-related if positive culture with the same microorganism from pus from insertion site.
+- C-CVC/C-PVC: Catheter related due to clinical suspicion (e.g., symptoms improve within 48 hours after catheter removal) AND no microbiological confirmation.
+- Secondary to another infection: the same microorganism was isolated from another infection site, or strong clinical evidence exists that bloodstream infection was secondary to another infection site, invasive diagnostic procedure or foreign body:
+o pulmonary (S-PUL);
+o urinary tract infection (S-UTI);
+o digestive tract infection (S-DIG);
+o surgical site infection (S-SSI);
+o skin and soft tissue (S-SST);
+o other (S-OTH).
+Unknown origin (UO): none of the above, bloodstream infection of unknown source.
+Place of acquisition if healthcare associated
+Infection is associated with (CURR) current hospital; (OHOSP) another hospital; (LTCF) a long-term care facility; (OTHUNK) other origin or unknown. Infections present at admission may be associated with a previous stay in your hospital or a transfer from another healthcare facility. The category ‘other origin or unknown’ can be used, for example, for infections with an onset after day 2 of the current hospitalisation for which the association is not clear.

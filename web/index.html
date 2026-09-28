@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECDC HA-BSI Surveillance & Benchmark Platform | ECDC PPS 2025</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">ECDC HA-BSI Surveillance & Benchmark AI</h1>
+          <p class="brand-subtitle">Algoritmo Deterministico ECDC PPS (ECDC/2025/LVP/0005) • LLM Clinici Locali e Valutazione Prestazioni</p>
+        </div>
+      </div>
+      <div class="system-status" id="system-status-badge">
+        <span class="status-indicator online" id="status-dot"></span>
+        <span class="status-text" id="status-text">Ollama Engine Online</span>
+      </div>
+    </header>
+
+    <!-- FOLDER SELECTION BAR (GLOBAL) -->
+    <section class="folder-bar-card">
+      <div class="folder-bar-inner">
+        <div class="folder-info">
+          <span class="folder-icon">📂</span>
+          <div class="folder-text">
+            <label for="folder-select" class="folder-label">Cartella Sorgente Cartelle Cliniche:</label>
+            <div class="folder-controls">
+              <select id="folder-select" onchange="onFolderSelected()">
+                <option value="">Rilevamento cartelle...</option>
+              </select>
+              <input type="text" id="custom-folder-input" placeholder="O inserisci percorso personalizzato..." style="display:none;" />
+              <button class="btn btn-sm btn-outline" id="btn-toggle-custom" onclick="toggleCustomFolder()">Percorso Custom</button>
+              <button class="btn btn-sm btn-primary" id="btn-apply-custom" onclick="applyCustomFolder()" style="display:none;">Applica</button>
+            </div>
+          </div>
+        </div>
+        <div class="patient-count-badge">
+          <span id="patient-count-val">--</span>
+          <small id="patient-count-sub">cartelle caricate</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB NAVIGATION -->
+    <nav class="tab-navigation">
+      <button class="tab-btn active" id="tab-single-btn" onclick="switchTab('single')">
+        <span class="tab-icon">🩺</span>
+        <span>Sorveglianza Singola Cartella</span>
+      </button>
+      <button class="tab-btn" id="tab-benchmark-btn" onclick="switchTab('benchmark')">
+        <span class="tab-icon">⚡</span>
+        <span>Benchmark Multi-Modello</span>
+      </button>
+      <button class="tab-btn" id="tab-reports-btn" onclick="switchTab('reports')">
+        <span class="tab-icon">📊</span>
+        <span>Report Comparativo & TESSy</span>
+      </button>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: SINGLE PATIENT SURVEILLANCE         -->
+    <!-- ========================================== -->
+    <div id="tab-single-content" class="tab-content active">
+      <!-- CONTROL BAR -->
+      <section class="control-panel">
+        <div class="panel-inner">
+          <div class="control-group">
+            <label for="patient-select">Cartella Clinica Paziente</label>
+            <div class="select-wrapper">
+              <select id="patient-select">
+                <option value="">Caricamento cartelle...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="model-select">Modello LLM (Locale)</label>
+            <div class="select-wrapper">
+              <select id="model-select">
+                <option value="">Caricamento modelli...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button id="btn-run" class="btn btn-primary" onclick="runAnalysis()">
+              <span class="btn-icon">⚡</span>
+              <span>Avvia Sorveglianza ECDC</span>
+            </button>
+            <label class="checkbox-label" title="Ignora i file JSON già estratti e forza una nuova inferenza LLM">
+              <input type="checkbox" id="chk-force-single">
+              <span>Forza ricalcolo LLM</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOADING STATE -->
+      <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <h3 id="loading-title">Analisi clinica in corso...</h3>
+        <p id="loading-desc">Chunking temporale per data, estrazione verbatim con LLM ed esecuzione regole deterministiche ECDC.</p>
+      </div>
+
+      <!-- MAIN RESULTS CONTAINER -->
+      <main id="results-container" class="results-container hidden">
+        <!-- SUMMARY CARDS -->
+        <div class="card-grid">
+          <div class="metric-card" id="card-bsi">
+            <div class="card-header">
+              <span class="card-badge">Criterio Diagnostico</span>
+              <span class="card-label">BSI</span>
+            </div>
+            <div class="card-value" id="val-bsi">--</div>
+            <div class="card-sub" id="sub-bsi">Patogeno: --</div>
+          </div>
+
+          <div class="metric-card" id="card-habsi">
+            <div class="card-header">
+              <span class="card-badge">Correlazione Assistenziale</span>
+              <span class="card-label">HA-BSI</span>
+            </div>
+            <div class="card-value" id="val-habsi">--</div>
+            <div class="card-sub" id="sub-habsi">Finestra: --</div>
+          </div>
+
+          <div class="metric-card" id="card-origin">
+            <div class="card-header">
+              <span class="card-badge">Origine Infezione</span>
+              <span class="card-label">Fonte</span>
+            </div>
+            <div class="card-value" id="val-origin">--</div>
+            <div class="card-sub" id="sub-origin">Sito: --</div>
+          </div>
+
+          <div class="metric-card" id="card-time">
+            <div class="card-header">
+              <span class="card-badge">Efficienza</span>
+              <span class="card-label">Tempo Risparmiato</span>
+            </div>
+            <div class="card-value" id="val-time-saved">--</div>
+            <div class="card-sub" id="sub-time-saved">Umano: 20m | LLM: --s</div>
+          </div>
+        </div>
+
+        <!-- DETAILS & TIMELINE SECTION -->
+        <div class="details-section">
+          <!-- AUDIT TRAIL CARD -->
+          <div class="detail-card">
+            <div class="detail-header">
+              <div class="detail-title">
+                <span>📋</span> Audit Trail Deterministico ECDC
+              </div>
+              <div class="agreement-badge" id="gold-agreement-badge">
+                Confronto Gold Standard: In attesa
+              </div>
+            </div>
+            <div class="audit-list" id="audit-trail-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- DOWNLOADS CARD -->
+          <div class="detail-card downloads-card">
+            <div class="detail-header">
+              <div class="detail-title">
+                <span>💾</span> Esportazione Tabelle Dati
+              </div>
+            </div>
+            <div class="download-actions">
+              <a id="btn-dl-timeline" href="#" class="btn btn-outline" download>
+                <span>📥</span> Master Timeline (.xlsx)
+              </a>
+              <a id="btn-dl-db" href="#" class="btn btn-outline" download>
+                <span>📊</span> CRF DB 199 Colonne (.xlsx)
+              </a>
+              <a id="btn-dl-tessy" href="#" class="btn btn-outline" download>
+                <span>🇪🇺</span> Export ECDC PPS (TESSy CSV)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIMELINE SECTION -->
+        <section class="timeline-section">
+          <div class="timeline-header">
+            <h3>📅 Timeline Clinica di Degenza (Ricostruzione Giornaliera)</h3>
+            <div class="timeline-filter">
+              <button class="filter-btn active" data-filter="all">Tutti i giorni</button>
+              <button class="filter-btn" data-filter="fever">Febbre / Sintomi</button>
+              <button class="filter-btn" data-filter="cvc">Dispositivi (CVC/Cateteri)</button>
+              <button class="filter-btn" data-filter="abx">Antibiotici</button>
+              <button class="filter-btn" data-filter="micro">Microbiologia</button>
+            </div>
+          </div>
+          <div class="timeline-container" id="timeline-container">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MULTI-MODEL BENCHMARK RUNNER        -->
+    <!-- ========================================== -->
+    <div id="tab-benchmark-content" class="tab-content">
+      <section class="benchmark-setup-card">
+        <h3 class="setup-title">⚙️ Configurazione Sessione di Benchmark</h3>
+        <p class="setup-desc">Seleziona i modelli LLM da confrontare, il target di pazienti da testare e avvia la pipeline automatizzata.</p>
+
+        <div class="benchmark-grid">
+          <!-- MODELS SELECTION -->
+          <div class="setup-box">
+            <div class="setup-box-header">
+              <h4>1. Seleziona Modelli da Confrontare</h4>
+              <button class="btn-text" onclick="selectAllModels(true)">Seleziona Tutti</button>
+            </div>
+            <div class="models-checkbox-list" id="models-checkbox-list">
+              <!-- Dynamically populated from Ollama tags -->
+            </div>
+          </div>
+
+          <!-- PATIENTS SELECTION -->
+          <div class="setup-box">
+            <div class="setup-box-header">
+              <h4>2. Target Cartelle Pazienti</h4>
+            </div>
+            <div class="patients-target-selection">
+              <label class="radio-label">
+                <input type="radio" name="bench-patient-scope" value="all" checked onchange="updateBenchScope()">
+                <span>Tutte le cartelle disponibili nella directory (<span id="bench-total-patients-num">--</span>)</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="bench-patient-scope" value="first5" onchange="updateBenchScope()">
+                <span>Test Rapido di Validazione (Prime 5 cartelle)</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="bench-patient-scope" value="custom" onchange="updateBenchScope()">
+                <span>Selezione specifica da elenco</span>
+              </label>
+              <div id="custom-patients-picker" style="display:none; margin-top:10px; max-height:160px; overflow-y:auto; border:1px solid var(--border-color); border-radius:8px; padding:10px;">
+                <!-- Populated if needed -->
+              </div>
+            </div>
+
+            <div class="benchmark-options-row">
+              <label class="checkbox-label" title="Ricalcola le estrazioni LLM anche se già presenti nella cache locale">
+                <input type="checkbox" id="chk-bench-force">
+                <span>Forza ricalcolo LLM (ignora cache esistente)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="benchmark-actions-bar">
+          <button id="btn-start-bench" class="btn btn-primary btn-lg" onclick="startMultiModelBenchmark()">
+            <span>🚀</span> Avvia Benchmark Multi-Modello
+          </button>
+          <button id="btn-stop-bench" class="btn btn-danger btn-lg hidden" onclick="stopBenchmark()">
+            <span>⏹️</span> Interrompi Benchmark
+          </button>
+        </div>
+      </section>
+
+      <!-- BENCHMARK PROGRESS CARD (ACTIVE WHEN RUNNING) -->
+      <section id="benchmark-progress-section" class="bench-progress-card hidden">
+        <div class="bench-progress-header">
+          <div>
+            <h4 id="bench-progress-title">Benchmark in esecuzione...</h4>
+            <p id="bench-progress-subtitle" class="text-secondary">Elaborazione in corso con monitoraggio tempo e memoria</p>
+          </div>
+          <div class="progress-pct-badge" id="bench-pct-badge">0%</div>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-bar-fill" id="bench-bar-fill" style="width: 0%;"></div>
+        </div>
+
+        <div class="bench-stats-grid">
+          <div class="bench-stat-box">
+            <span class="stat-label">Modello Attuale</span>
+            <span class="stat-val" id="bench-cur-model">--</span>
+          </div>
+          <div class="bench-stat-box">
+            <span class="stat-label">Paziente in Corso</span>
+            <span class="stat-val" id="bench-cur-patient">--</span>
+          </div>
+          <div class="bench-stat-box">
+            <span class="stat-label">Progresso Pazienti</span>
+            <span class="stat-val" id="bench-cur-step">0 / 0</span>
+          </div>
+          <div class="bench-stat-box">
+            <span class="stat-label">Tempo Trascorso</span>
+            <span class="stat-val" id="bench-cur-elapsed">0s</span>
+          </div>
+        </div>
+
+        <!-- LIVE LOG BOX -->
+        <div class="live-log-container">
+          <div class="live-log-header">
+            <span>Terminal Log in Tempo Reale</span>
+            <button class="btn-text" onclick="clearLiveLog()">Pulisci</button>
+          </div>
+          <div class="live-log-box" id="live-log-box">
+            <div class="live-log-line">Inizializzazione sessione di sorveglianza...</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: BENCHMARK RESULTS & COMPARISON      -->
+    <!-- ========================================== -->
+    <div id="tab-reports-content" class="tab-content">
+      <section class="reports-hero-card">
+        <div class="reports-hero-text">
+          <h3>📊 Risultati & Performance dei Modelli LLM</h3>
+          <p>Confronto delle metriche epidemiologiche (Cohen's Kappa, F1-Score, Sensibilità, Specificità) rispetto al Gold Standard Umano (ECDC PPS).</p>
+        </div>
+        <div class="reports-actions">
+          <a href="/benchmark/report_benchmark_interattivo.html" target="_blank" class="btn btn-primary">
+            <span>🌐</span> Apri Dashboard Web Interattiva
+          </a>
+          <a href="/api/download/benchmark/benchmark_comparison_models.xlsx" class="btn btn-outline" download>
+            <span>📥</span> Scarica Matrice Comparativa (.xlsx)
+          </a>
+        </div>
+      </section>
+
+      <!-- MODELS COMPARISON TABLE CONTAINER -->
+      <section class="table-card">
+        <div class="table-card-header">
+          <h4>Sintesi Metriche Multimodello</h4>
+          <span class="badge badge-accent">Valutazione Validata</span>
+        </div>
+        <div class="table-responsive" id="benchmark-summary-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Modello LLM</th>
+                <th>Accuratezza BSI</th>
+                <th>Sensibilità (TP Rate)</th>
+                <th>Specificità (TN Rate)</th>
+                <th>F1-Score</th>
+                <th>Cohen's Kappa (κ)</th>
+                <th>Tempo Totale</th>
+                <th>Tempo Risparmiato</th>
+              </tr>
+            </thead>
+            <tbody id="bench-metrics-tbody">
+              <!-- Dynamically populated or static baseline -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- DISCREPANCY VIEWER -->
+      <section class="table-card" style="margin-top:24px;">
+        <div class="table-card-header">
+          <h4>🔍 Analizzatore Discrepanze Cliniche (Falsi Positivi / Falsi Negativi)</h4>
+          <div class="filter-pill-group">
+            <button class="pill-btn active" onclick="filterDiscrepancies('all')">Tutti (67)</button>
+            <button class="pill-btn" onclick="filterDiscrepancies('fp')">Solo FP (Falsi Positivi)</button>
+            <button class="pill-btn" onclick="filterDiscrepancies('fn')">Solo FN (Falsi Negativi)</button>
+            <button class="pill-btn" onclick="filterDiscrepancies('match')">Accordi (TP/TN)</button>
+          </div>
+        </div>
+        <div class="table-responsive" style="max-height: 480px; overflow-y:auto;">
+          <table class="data-table" id="discrepancy-table">
+            <thead>
+              <tr>
+                <th>Paziente</th>
+                <th>Gold BSI</th>
+                <th>LLM BSI</th>
+                <th>Stato</th>
+                <th>Gold HA-BSI</th>
+                <th>LLM HA-BSI</th>
+                <th>Patogeno Isolato</th>
+                <th>Origine Gold</th>
+                <th>Origine LLM</th>
+                <th>Tempo LLM</th>
+              </tr>
+            </thead>
+            <tbody id="discrepancy-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
